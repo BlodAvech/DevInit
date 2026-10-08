@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using backend.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models;
 
 public partial class DevInitContext : DbContext
 {
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<UserOAuth> UserOAuths { get; set; } = null!;
     public DbSet<Service> Services { get; set; } = null!;
+    public DbSet<ServiceVersion> ServicesVersion { get; set; } = null!;
+    
     public DevInitContext(DbContextOptions<DevInitContext> options)
         : base(options)
     {
@@ -24,6 +29,17 @@ public partial class DevInitContext : DbContext
             .WithOne(v => v.Service)
             .HasForeignKey(v => v.ServiceId)
             .IsRequired();
+
+        modelBuilder
+            .Entity<User>()
+            .HasMany(u => u.OAuths)
+            .WithOne(o => o.User)
+            .HasForeignKey(o => o.UserId);
+
+        modelBuilder
+            .Entity<UserOAuth>()
+            .HasIndex(o => o.ProviderId)
+            .IsUnique();
 
         var timeStampEntities = modelBuilder.Model.GetEntityTypes()
             .Where(e => typeof(TimeStamp).IsAssignableFrom(e.ClrType));

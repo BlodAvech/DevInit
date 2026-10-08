@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backend.Models;
@@ -11,9 +12,11 @@ using backend.Models;
 namespace backend.Migrations
 {
     [DbContext(typeof(DevInitContext))]
-    partial class DevInitContextModelSnapshot : ModelSnapshot
+    [Migration("20261007065443_User")]
+    partial class User
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("backend.Models.Service", b =>
+            modelBuilder.Entity("Service", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -64,7 +67,7 @@ namespace backend.Migrations
                     b.ToTable("services");
                 });
 
-            modelBuilder.Entity("backend.Models.ServiceVersion", b =>
+            modelBuilder.Entity("ServiceVersion", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -106,7 +109,7 @@ namespace backend.Migrations
                     b.ToTable("service_version");
                 });
 
-            modelBuilder.Entity("backend.Models.User", b =>
+            modelBuilder.Entity("User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -121,18 +124,19 @@ namespace backend.Migrations
                         .HasDefaultValueSql("now()");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("email");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
                         .HasColumnName("name");
 
                     b.Property<string>("Password")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("password");
 
                     b.HasKey("Id");
@@ -140,41 +144,9 @@ namespace backend.Migrations
                     b.ToTable("users");
                 });
 
-            modelBuilder.Entity("backend.Models.UserOAuth", b =>
+            modelBuilder.Entity("ServiceVersion", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id")
-                        .HasDefaultValueSql("gen_random_uuid()");
-
-                    b.Property<string>("Provider")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("provider");
-
-                    b.Property<string>("ProviderId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("provider_id");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProviderId")
-                        .IsUnique();
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("userOAuth");
-                });
-
-            modelBuilder.Entity("backend.Models.ServiceVersion", b =>
-                {
-                    b.HasOne("backend.Models.Service", "Service")
+                    b.HasOne("Service", "Service")
                         .WithMany("ServiceVersions")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -183,25 +155,9 @@ namespace backend.Migrations
                     b.Navigation("Service");
                 });
 
-            modelBuilder.Entity("backend.Models.UserOAuth", b =>
-                {
-                    b.HasOne("backend.Models.User", "User")
-                        .WithMany("OAuths")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("backend.Models.Service", b =>
+            modelBuilder.Entity("Service", b =>
                 {
                     b.Navigation("ServiceVersions");
-                });
-
-            modelBuilder.Entity("backend.Models.User", b =>
-                {
-                    b.Navigation("OAuths");
                 });
 #pragma warning restore 612, 618
         }
