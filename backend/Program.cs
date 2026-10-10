@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
+using Scalar.AspNetCore;
 
 DotNetEnv.Env.Load();
 
@@ -47,6 +48,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
@@ -54,14 +57,14 @@ app.UseHttpsRedirection();
 
 app.MapAuthRoute();
 
-app.MapGet("/" , () => Results.Ok("ok"));
+// app.MapGet("/" , () => Results.Ok("ok"));
 
-app.MapGet("/google" , async () =>
-{
-    return Results.Challenge(
-        new AuthenticationProperties { RedirectUri = "/" },
-        new[] { "Google"}
-    );
-});
+// app.MapGet("/google" , async () =>
+// {
+//     return Results.Challenge(
+//         new AuthenticationProperties { RedirectUri = "/" },
+//         new[] { "Google"}
+//     );
+// });
 
 app.Run();
