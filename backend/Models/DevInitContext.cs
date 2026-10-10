@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using backend.Extensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,31 +23,6 @@ public partial class DevInitContext : DbContext
         OnModelCreatingPartial(modelBuilder);
 
 
-
-        modelBuilder
-            .Entity<Service>()
-            .HasMany(s => s.ServiceVersions)
-            .WithOne(v => v.Service)
-            .HasForeignKey(v => v.ServiceId)
-            .IsRequired();
-
-        modelBuilder
-            .Entity<User>()
-            .HasMany(u => u.OAuths)
-            .WithOne(o => o.User)
-            .HasForeignKey(o => o.UserId);
-
-        modelBuilder
-            .Entity<UserOAuth>()
-            .HasIndex(o => o.ProviderId)
-            .IsUnique();
-
-        var timeStampEntities = modelBuilder.Model.GetEntityTypes()
-            .Where(e => typeof(TimeStamp).IsAssignableFrom(e.ClrType));
-
-        var createdTimeStampEntities = modelBuilder.Model.GetEntityTypes()
-            .Where(e => typeof(CreatedTimeStamp).IsAssignableFrom(e.ClrType));
-            
         var idenityEntities = modelBuilder.Model.GetEntityTypes()
             .Where(e => typeof(Identity).IsAssignableFrom(e.ClrType));
 
@@ -62,6 +38,37 @@ public partial class DevInitContext : DbContext
                 .Entity(entityType.ClrType)
                 .HasKey(nameof(Identity.Id));
         }
+
+
+        modelBuilder
+            .Entity<Service>()
+            .HasMany(s => s.ServiceVersions)
+            .WithOne(v => v.Service)
+            .HasForeignKey(v => v.ServiceId)
+            .IsRequired();
+
+        modelBuilder
+            .Entity<User>()
+            .HasMany(u => u.OAuths)
+            .WithOne(o => o.User)
+            .HasForeignKey(o => o.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder
+            .Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+
+        modelBuilder
+            .Entity<UserOAuth>()
+            .HasIndex(o => new {o.Provider , o.ProviderId})
+            .IsUnique();
+
+        var timeStampEntities = modelBuilder.Model.GetEntityTypes()
+            .Where(e => typeof(TimeStamp).IsAssignableFrom(e.ClrType));
+
+        var createdTimeStampEntities = modelBuilder.Model.GetEntityTypes()
+            .Where(e => typeof(CreatedTimeStamp).IsAssignableFrom(e.ClrType));
 
         foreach (var entityType in timeStampEntities)
         {

@@ -1,4 +1,4 @@
-using backend.Models;
+using backend.Models.DTOs;
 
 public static class AuthRoute
 {
@@ -7,6 +7,6 @@ public static class AuthRoute
 		var group = app.MapGroup("/auth");
 
 		group.MapPost("/reg" , AuthController.Register)
-		.AddEndpointFilter<FluentValidationFilter<User>>();
+		.AddEndpointFilter<FluentValidationFilter<UserRegisterDTO>>();
 	}
 }
