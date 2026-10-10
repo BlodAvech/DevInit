@@ -18,13 +18,9 @@ builder.Services.AddOpenApi();
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 builder.Services.AddDbContext<DevInitContext>(options => options.UseNpgsql(connectionString));
 
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-    })
-    .AddCookie()
+if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")))
+{
+    builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
         options.ClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")!;
@@ -32,7 +28,12 @@ builder.Services.AddAuthentication(options =>
         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         
         options.Events.OnCreatingTicket = OAuth.OnCreatingTicket;
-    })
+    });
+}
+
+if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GITHUB_CLIENT_ID")))
+{
+    builder.Services.AddAuthentication()
     .AddGitHub(options =>
     {
         options.ClientId = Environment.GetEnvironmentVariable("GITHUB_CLIENT_ID")!;
@@ -40,6 +41,15 @@ builder.Services.AddAuthentication(options =>
         options.Scope.Add("user:email");
         options.Events.OnCreatingTicket = OAuth.OnCreatingTicket;
     });
+}
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    })
+    .AddCookie();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
