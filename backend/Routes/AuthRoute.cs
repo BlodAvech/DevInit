@@ -8,5 +8,8 @@ public static class AuthRoute
 
 		group.MapPost("/reg" , AuthController.Register)
 		.AddEndpointFilter<FluentValidationFilter<UserRegisterDTO>>();
+
+		group.MapPost("/login" , AuthController.Login)
+		.AddEndpointFilter<FluentValidationFilter<UserLoginDTO>>();
 	}
 }
