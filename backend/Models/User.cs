@@ -26,4 +26,11 @@ namespace backend.Models
 
 		public ICollection<UserOAuth> OAuths { get; set; } = new List<UserOAuth>();
 	}
+
+	public class UserRegisterDTO
+	{
+		public required string Name { get; set; }
+		public required string Email { get; set; }
+		public required string Password { get; set; }
+	}
 }

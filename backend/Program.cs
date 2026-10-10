@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation;
 
 DotNetEnv.Env.Load();
 
@@ -39,11 +40,9 @@ builder.Services.AddAuthentication(options =>
         options.Events.OnCreatingTicket = OAuth.OnCreatingTicket;
     });
 
-
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 var app = builder.Build();
-
-
 
 if (app.Environment.IsDevelopment())
 {
@@ -53,38 +52,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 
-
-app.MapGet("/" , async () =>
-{
-    return Results.Ok("все норм");
-});
-
-app.MapGet("/google" , async () =>
-{
-    return Results.Challenge(
-        new AuthenticationProperties { RedirectUri = "/" },
-        new[] { "Google"}
-    );
-});
-
-app.MapGet("/github" , async () =>
-{
-    return Results.Challenge(
-        new AuthenticationProperties { RedirectUri = "/" },
-        new[] { "GitHub"}
-    );
-});
-
-app.MapGet("/me" , async (ClaimsPrincipal user) =>
-{
-    return Results.Ok(new
-    {
-        id = user.FindFirstValue(ClaimTypes.NameIdentifier),
-        name = user.FindFirstValue(ClaimTypes.Name),
-        email = user.FindFirstValue(ClaimTypes.Email),
-        given = user.FindFirstValue(ClaimTypes.GivenName),
-        surname = user.FindFirstValue(ClaimTypes.Surname),
-    });
-});
+app.MapAuthRoute();
 
 app.Run();
