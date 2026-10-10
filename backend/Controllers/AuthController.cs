@@ -38,6 +38,8 @@ public static class AuthController
 		var user = await db.Users.FirstOrDefaultAsync(u => u.Email == userDTO.Email);
 		if(user == null) return Results.BadRequest(new {error = "no account with this email"});
 
+		if(string.IsNullOrEmpty(user.Password)) return Results.BadRequest(new {error = "login with oAuth"});
+
 		bool isPasswordsFits = BCrypt.Net.BCrypt.EnhancedVerify(userDTO.Password , user.Password);
 		if(!isPasswordsFits) return Results.BadRequest(new {error = "password is incorrect"});
 

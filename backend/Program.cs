@@ -54,4 +54,14 @@ app.UseHttpsRedirection();
 
 app.MapAuthRoute();
 
+app.MapGet("/" , () => Results.Ok("ok"));
+
+app.MapGet("/google" , async () =>
+{
+    return Results.Challenge(
+        new AuthenticationProperties { RedirectUri = "/" },
+        new[] { "Google"}
+    );
+});
+
 app.Run();
