@@ -1,10 +1,12 @@
+using backend.Extensions;
 using backend.Models;
 using backend.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 public static class AuthController
 {
-	public static async Task<IResult> Register(DevInitContext db , UserRegisterDTO userDTO)
+	public static async Task<IResult> Register(DevInitContext db , JWTService jwt , HttpContext http , UserRegisterDTO userDTO)
 	{
 		userDTO.Name = userDTO.Name.Trim();
 		userDTO.Email = userDTO.Email.Trim();
@@ -27,10 +29,14 @@ public static class AuthController
 		db.Users.Add(user);
 		await db.SaveChangesAsync();
 
-		return Results.Ok(user);
+		var token = jwt.GenerateToken(user.Id , user.Name);
+
+			
+
+		return Results.Ok(token);
 	}
 
-	public static async Task<IResult> Login(DevInitContext db , UserLoginDTO userDTO)
+	public static async Task<IResult> Login(DevInitContext db , JWTService jwt , UserLoginDTO userDTO)
 	{
 		userDTO.Email = userDTO.Email.Trim();
 		userDTO.Password = userDTO.Password.Trim();
@@ -43,6 +49,7 @@ public static class AuthController
 		bool isPasswordsFits = BCrypt.Net.BCrypt.EnhancedVerify(userDTO.Password , user.Password);
 		if(!isPasswordsFits) return Results.BadRequest(new {error = "password is incorrect"});
 
-		return Results.Ok(user);
+		var token = jwt.GenerateToken(user.Id , user.Name ?? "");
+		return Results.Ok(token);
 	}
 }
