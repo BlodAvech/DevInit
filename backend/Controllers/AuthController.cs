@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 
 public static class AuthController
 {
-	public static async Task<IResult> Register(DevInitContext db , JWTService jwt , HttpContext http , UserRegisterDTO userDTO)
+	public static async Task<IResult> Register(DevInitContext db , JWTService jwt , HttpContext context , UserRegisterDTO userDTO)
 	{
 		userDTO.Name = userDTO.Name.Trim();
 		userDTO.Email = userDTO.Email.Trim();
@@ -29,14 +29,14 @@ public static class AuthController
 		db.Users.Add(user);
 		await db.SaveChangesAsync();
 
-		var token = jwt.GenerateToken(user.Id , user.Name);
-
-			
+		var token = jwt.GenerateToken(new TokenDTO{Id = user.Id.ToString() , Name = user.Name});
+		
+		jwt.CreateTokenCookie(context , token);
 
 		return Results.Ok(token);
 	}
 
-	public static async Task<IResult> Login(DevInitContext db , JWTService jwt , UserLoginDTO userDTO)
+	public static async Task<IResult> Login(DevInitContext db , JWTService jwt , HttpContext context , UserLoginDTO userDTO)
 	{
 		userDTO.Email = userDTO.Email.Trim();
 		userDTO.Password = userDTO.Password.Trim();
@@ -49,7 +49,10 @@ public static class AuthController
 		bool isPasswordsFits = BCrypt.Net.BCrypt.EnhancedVerify(userDTO.Password , user.Password);
 		if(!isPasswordsFits) return Results.BadRequest(new {error = "password is incorrect"});
 
-		var token = jwt.GenerateToken(user.Id , user.Name ?? "");
+		var token = jwt.GenerateToken(new TokenDTO{Id = user.Id.ToString() , Name = user.Name});
+
+		jwt.CreateTokenCookie(context , token);
+
 		return Results.Ok(token);
 	}
 }
